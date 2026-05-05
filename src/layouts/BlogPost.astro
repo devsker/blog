@@ -1,0 +1,370 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import ArrowLeft02Icon from '@hugeicons/core-free-icons/ArrowLeft02Icon';
+import Copy01Icon from '@hugeicons/core-free-icons/Copy01Icon';
+import Link01Icon from '@hugeicons/core-free-icons/Link01Icon';
+import Tick01Icon from '@hugeicons/core-free-icons/Tick01Icon';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+
+type Props = CollectionEntry<'blog'>['data'];
+
+const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const basePath = import.meta.env.BASE_URL;
+const withBase = (path: string) => `${basePath.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
+
+function renderIconMarkup(icon: Array<[string, Record<string, string>]>) {
+	return `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">${icon
+		.map(
+			([tag, attrs]) =>
+				`<${tag} ${Object.entries(attrs)
+					.map(([key, value]) => `${key}="${value}"`)
+					.join(' ')}></${tag}>`,
+		)
+		.join('')}</svg>`;
+}
+
+const copyIconMarkup = renderIconMarkup(Copy01Icon);
+const linkIconMarkup = renderIconMarkup(Link01Icon);
+const copiedIconMarkup = renderIconMarkup(Tick01Icon);
+const backIconMarkup = renderIconMarkup(ArrowLeft02Icon);
+---
+
+<html lang="en">
+	<head>
+		<BaseHead title={title} description={description} image={heroImage} imageAlt={title} type="article" />
+		<style>
+			.prose {
+				padding-top: 0;
+			}
+
+			.prose :global(.auto-embed) {
+				margin: 2rem 0;
+			}
+
+			.prose :global(.auto-embed__frame) {
+				display: block;
+				width: 100%;
+				aspect-ratio: 16 / 9;
+				border: 0;
+				border-radius: 1rem;
+				background: var(--surface);
+			}
+
+			.prose :global([src*='open.spotify.com/embed/']) {
+				aspect-ratio: auto;
+				min-height: 352px;
+			}
+
+			.prose :global(.heading-anchor) {
+				position: relative;
+				scroll-margin-top: 1.5rem;
+			}
+
+			.prose :global(.heading-anchor__content) {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.4rem;
+				flex-wrap: wrap;
+			}
+
+			.prose :global(.heading-anchor__link) {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				width: 1rem;
+				height: 1rem;
+				padding: 0;
+				color: var(--muted);
+				text-decoration: none;
+				opacity: 0;
+				transform: translateX(-0.15rem);
+				pointer-events: none;
+				transition:
+					opacity 160ms ease,
+					color 160ms ease,
+					transform 160ms ease;
+			}
+
+			.prose :global(.heading-anchor:hover .heading-anchor__link),
+			.prose :global(.heading-anchor:focus-within .heading-anchor__link),
+			.prose :global(.heading-anchor__link[data-copied='true']) {
+				opacity: 1;
+				pointer-events: auto;
+				transform: translateX(0);
+			}
+
+			.prose :global(.heading-anchor__link:hover),
+			.prose :global(.heading-anchor__link:focus-visible) {
+				color: var(--text);
+			}
+
+			.prose :global(.heading-anchor__link:focus-visible) {
+				outline: 2px solid var(--text);
+				outline-offset: 2px;
+				border-radius: 3px;
+			}
+
+			.prose :global(.heading-anchor__link[data-copied='true']) {
+				color: var(--text);
+				transform: scale(1.04);
+			}
+
+			.prose :global(.heading-anchor__link svg) {
+				width: 1rem;
+				height: 1rem;
+			}
+
+			.prose :global(pre) {
+				position: relative;
+			}
+
+			.prose :global(.code-copy-button) {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				position: absolute;
+				top: 0.75rem;
+				right: 0.75rem;
+				width: 1rem;
+				height: 1rem;
+				border: 0;
+				padding: 0;
+				background: transparent;
+				color: color-mix(in srgb, white 72%, transparent);
+				text-decoration: none;
+				cursor: pointer;
+				transition:
+					color 160ms ease,
+					transform 160ms ease;
+			}
+
+			.prose :global(.code-copy-button:hover) {
+				color: white;
+			}
+
+			.prose :global(.code-copy-button:focus-visible) {
+				outline: 2px solid var(--text);
+				outline-offset: 2px;
+			}
+
+			.prose :global(.code-copy-button[data-copied='true']) {
+				color: white;
+				transform: scale(1.04);
+			}
+
+			.prose :global(.code-copy-button svg) {
+				width: 1rem;
+				height: 1rem;
+			}
+
+			.back-link {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.35rem;
+				margin-bottom: 1.5rem;
+				color: var(--muted);
+				text-decoration: none;
+			}
+
+			.back-link:hover {
+				color: var(--text);
+			}
+
+			.back-link__icon {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.back-link__icon :global(svg) {
+				width: 1.05rem;
+				height: 1.05rem;
+				transform: translateY(-1px);
+			}
+
+			.back-link__icon :global(svg *) {
+				stroke-width: 2;
+			}
+
+			.title {
+				margin-bottom: 2rem;
+			}
+
+			.title h1 {
+				margin-bottom: 0.5rem;
+			}
+
+			.date {
+				margin-bottom: 0.5rem;
+				color: var(--muted);
+			}
+
+			.last-updated-on {
+				font-size: 0.95rem;
+			}
+
+			img {
+				margin-bottom: 2rem;
+			}
+		</style>
+	</head>
+
+	<body>
+		<main>
+			<article class="prose">
+				<a class="back-link" href={withBase('/')}><span class="back-link__icon" aria-hidden="true" set:html={backIconMarkup} /> Back to posts</a>
+				<div class="title">
+					<div class="date">
+						<FormattedDate date={pubDate} />
+						{
+							updatedDate && (
+								<div class="last-updated-on">
+									Last updated on <FormattedDate date={updatedDate} />
+								</div>
+							)
+						}
+					</div>
+					<h1>{title}</h1>
+				</div>
+				{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
+				<slot />
+			</article>
+		</main>
+		<Footer />
+		<script is:inline define:vars={{ copyIconMarkup, linkIconMarkup, copiedIconMarkup }}>
+			const slugify = (value) =>
+				value
+					.toLowerCase()
+					.trim()
+					.replace(/[^\w\s-]/g, '')
+					.replace(/[\s_-]+/g, '-')
+					.replace(/^-+|-+$/g, '');
+
+			const copyText = async (text) => {
+				if (navigator.clipboard?.writeText) {
+					await navigator.clipboard.writeText(text);
+					return;
+				}
+
+				const input = document.createElement('textarea');
+				input.value = text;
+				input.setAttribute('readonly', '');
+				input.style.position = 'absolute';
+				input.style.left = '-9999px';
+				document.body.append(input);
+				input.select();
+				document.execCommand('copy');
+				input.remove();
+			};
+
+			const enhanceHeading = (heading, usedIds) => {
+				if (heading.querySelector('.heading-anchor__link')) {
+					return;
+				}
+
+				const baseId = heading.id || slugify(heading.textContent || '') || 'section';
+				let nextId = baseId;
+				let duplicateIndex = 2;
+
+				while (usedIds.has(nextId) && heading.id !== nextId) {
+					nextId = `${baseId}-${duplicateIndex}`;
+					duplicateIndex += 1;
+				}
+
+				heading.id = nextId;
+				usedIds.add(nextId);
+				heading.classList.add('heading-anchor');
+
+				const wrapper = document.createElement('span');
+				wrapper.className = 'heading-anchor__content';
+
+				while (heading.firstChild) {
+					wrapper.append(heading.firstChild);
+				}
+
+				const link = document.createElement('a');
+				link.className = 'heading-anchor__link';
+				link.setAttribute('aria-label', `Copy link to ${heading.textContent?.trim() || 'section'}`);
+				link.innerHTML = linkIconMarkup;
+				link.href = `#${heading.id}`;
+
+				let resetTimer;
+				link.addEventListener('click', async (event) => {
+					event.preventDefault();
+					const url = new URL(window.location.href);
+					url.hash = heading.id;
+
+					try {
+						await copyText(url.toString());
+						history.replaceState(null, '', `#${heading.id}`);
+						link.innerHTML = copiedIconMarkup;
+						link.dataset.copied = 'true';
+						window.clearTimeout(resetTimer);
+						resetTimer = window.setTimeout(() => {
+							link.innerHTML = linkIconMarkup;
+							link.dataset.copied = 'false';
+						}, 2200);
+					} catch {
+						link.dataset.copied = 'false';
+					}
+				});
+
+				wrapper.append(link);
+				heading.append(wrapper);
+			};
+
+			const enhanceCodeBlock = (pre) => {
+				if (pre.querySelector('.code-copy-button')) {
+					return;
+				}
+
+				const code = pre.querySelector('code');
+				if (!code?.textContent?.trim()) {
+					return;
+				}
+
+				const button = document.createElement('button');
+				button.type = 'button';
+				button.className = 'code-copy-button';
+				button.setAttribute('aria-label', 'Copy code block');
+				button.innerHTML = copyIconMarkup;
+
+				let resetTimer;
+				button.addEventListener('click', async () => {
+					try {
+						await copyText(code.textContent ?? '');
+						button.innerHTML = copiedIconMarkup;
+						button.dataset.copied = 'true';
+						window.clearTimeout(resetTimer);
+						resetTimer = window.setTimeout(() => {
+							button.innerHTML = copyIconMarkup;
+							button.dataset.copied = 'false';
+						}, 2200);
+					} catch {
+						button.dataset.copied = 'false';
+					}
+				});
+
+				pre.append(button);
+			};
+
+			const usedIds = new Set();
+			for (const heading of document.querySelectorAll('article.prose h2[id], article.prose h3[id]')) {
+				if (heading.id) {
+					usedIds.add(heading.id);
+				}
+			}
+
+			for (const heading of document.querySelectorAll('article.prose h2, article.prose h3')) {
+				enhanceHeading(heading, usedIds);
+			}
+
+			for (const pre of document.querySelectorAll('article.prose pre')) {
+				enhanceCodeBlock(pre);
+			}
+		</script>
+	</body>
+</html>
