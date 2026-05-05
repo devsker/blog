@@ -117,5 +117,5 @@ async function main() {
 main().catch((error) => {
 	console.error('[og] Failed to generate homepage OG image.');
 	console.error(error instanceof Error ? error.message : error);
-	process.exit(1);
+	console.error('[og] Continuing build without OG image generation.');
 });
