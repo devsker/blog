@@ -7,8 +7,8 @@ import rehypeAutoEmbed from './src/utils/rehypeAutoEmbed.mjs';
 
 // https://astro.build/config
 export default defineConfig({
-	site: 'https://sker.codeberg.page',
-	base: '/blog',
+	site: 'https://blog.sker.lol',
+	base: '/',
 	integrations: [mdx(), sitemap()],
 	markdown: {
 		rehypePlugins: [rehypeAutoEmbed],

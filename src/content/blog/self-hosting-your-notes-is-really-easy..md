@@ -2,7 +2,7 @@
 title: Self-hosting your Notes is really easy.
 description: Self-hosting LiveSync for Obsidian on a 2015 MacBook Pro "Home Server".
 pubDate: 2026-04-13
-link: https://sker.codeberg.page/blog/posts/self-hosting-your-notes-is-really-easy/
+link: https://blog.sker.lol/posts/self-hosting-your-notes-is-really-easy/
 ---
 **TL;DR for the impatient:** I turned my old MacBook Pro 2015 into a "Home Server" running LiveSync for Obsidian, where I save my notes. After dealing with massive battery drain from other apps and failing to set up overly complex alternatives, I realized a simple CouchDB instance and the LiveSync plugin was all I needed. It was incredibly easy, and I'll never pay for cloud sync again.
 
