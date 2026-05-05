@@ -9,9 +9,7 @@
     "dev": "astro dev",
     "prebuild": "node ./scripts/clean-astro-cache.mjs",
     "build": "astro build",
-    "postbuild": "node ./scripts/generate-og-homepage.mjs",
     "preview": "astro preview",
-    "postinstall": "playwright install",
     "astro": "astro"
   },
   "dependencies": {
