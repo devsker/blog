@@ -102,7 +102,7 @@ const withBase = (path: string) =>
                                     class="post-link"
                                     href={withBase(`posts/${post.id}/`)}
                                 >
-                                    <span class="post-title">
+                                    <span class="post-title" transition:name={`post-title-${post.id}`}>
                                         {post.data.title}
                                     </span>
                                     <span class="post-date">

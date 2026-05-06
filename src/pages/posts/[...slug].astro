@@ -26,6 +26,6 @@ const words = (post.body ?? '')
 const readingTime = Math.max(1, Math.ceil(words / 200));
 ---
 
-<BlogPost {...post.data} readingTime={readingTime} headings={headings}>
+<BlogPost id={post.id} {...post.data} readingTime={readingTime} headings={headings}>
 	<Content components={{ Screenshot, Callout, ImageGrid }} />
 </BlogPost>

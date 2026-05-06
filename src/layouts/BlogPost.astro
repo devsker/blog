@@ -12,11 +12,12 @@ import FormattedDate from '../components/FormattedDate.astro';
 import TableOfContents from '../components/TableOfContents.astro';
 
 type Props = CollectionEntry<'blog'>['data'] & {
+	id: string;
 	readingTime?: number;
 	headings?: MarkdownHeading[];
 };
 
-const { title, description, pubDate, updatedDate, heroImage, readingTime, headings } = Astro.props;
+const { id, title, description, pubDate, updatedDate, heroImage, readingTime, headings } = Astro.props;
 const basePath = import.meta.env.BASE_URL;
 const withBase = (path: string) => `${basePath.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
 
@@ -339,7 +340,7 @@ const backIconMarkup = renderIconMarkup(ArrowLeft02Icon);
 			<article class="prose">
 				<a class="back-link" href={withBase('/')}><span class="back-link__icon" aria-hidden="true" set:html={backIconMarkup} /> all posts</a>
 				<div class="title">
-					<h1>{title}</h1>
+					<h1 transition:name={`post-title-${id}`}>{title}</h1>
 					<div class="meta">
 						<FormattedDate date={pubDate} />
 						{readingTime && <span>&nbsp;&middot; {readingTime} min read</span>}
