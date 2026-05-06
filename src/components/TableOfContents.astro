@@ -17,7 +17,9 @@ const filtered = headings.filter((h) => h.depth === 2 || h.depth === 3);
 			<ol>
 				{filtered.map((h) => (
 					<li class:list={['toc__item', h.depth === 3 && 'toc__item--sub']}>
-						<a href={`#${h.slug}`}>{h.text}</a>
+						<a href={`#${h.slug}`} data-toc-link>
+							{h.text}
+						</a>
 					</li>
 				))}
 			</ol>
@@ -25,13 +27,69 @@ const filtered = headings.filter((h) => h.depth === 2 || h.depth === 3);
 	)
 }
 
+<script>
+	const observerOptions = {
+		root: null,
+		rootMargin: '-20px 0px -70% 0px',
+		threshold: 0,
+	};
+
+	const tocLinks = document.querySelectorAll('[data-toc-link]');
+	const headings = Array.from(document.querySelectorAll('.content h2, .content h3'));
+
+	let activeId = '';
+
+	const observer = new IntersectionObserver((entries) => {
+		// Identify which heading is currently intersecting
+		entries.forEach((entry) => {
+			if (entry.isIntersecting) {
+				activeId = entry.target.id;
+			}
+		});
+
+		// Check if we are at the bottom of the page
+		const scrollHeight = document.documentElement.scrollHeight;
+		const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+		const clientHeight = document.documentElement.clientHeight;
+
+		if (scrollTop + clientHeight >= scrollHeight - 20) {
+			activeId = headings[headings.length - 1]?.id || activeId;
+		}
+
+		updateActiveLink();
+	}, observerOptions);
+
+	function updateActiveLink() {
+		if (!activeId) return;
+		
+		tocLinks.forEach((link) => {
+			const href = link.getAttribute('href');
+			if (href === `#${activeId}`) {
+				link.classList.add('active');
+			} else {
+				link.classList.remove('active');
+			}
+		});
+	}
+
+	headings.forEach((heading) => observer.observe(heading));
+
+	// Initial check on load
+	window.addEventListener('scroll', () => {
+		const scrollHeight = document.documentElement.scrollHeight;
+		const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+		const clientHeight = document.documentElement.clientHeight;
+
+		if (scrollTop + clientHeight >= scrollHeight - 20) {
+			activeId = headings[headings.length - 1]?.id || activeId;
+			updateActiveLink();
+		}
+	}, { passive: true });
+</script>
+
 <style>
 	.toc {
-		border: 1px solid var(--border);
-		border-radius: 4px;
-		padding: 1rem 1.25rem;
 		margin-bottom: 2.5rem;
-		background: var(--surface);
 	}
 
 	.toc__title {
@@ -41,8 +99,8 @@ const filtered = headings.filter((h) => h.depth === 2 || h.depth === 3);
 		text-transform: uppercase;
 		letter-spacing: 0.08em;
 		color: var(--muted);
-		margin-bottom: 0.75rem;
-		margin: 0 0 0.75rem;
+		margin-bottom: 1rem;
+		margin-top: 0;
 	}
 
 	.toc ol {
@@ -52,7 +110,7 @@ const filtered = headings.filter((h) => h.depth === 2 || h.depth === 3);
 	}
 
 	.toc__item {
-		margin-bottom: 0.4rem;
+		margin-bottom: 0.5rem;
 		font-size: 0.875rem;
 	}
 
@@ -63,10 +121,22 @@ const filtered = headings.filter((h) => h.depth === 2 || h.depth === 3);
 	.toc a {
 		color: var(--muted);
 		text-decoration: none;
-		transition: color 160ms ease;
+		transition:
+			color 160ms ease,
+			border-left-color 160ms ease;
+		display: block;
+		border-left: 2px solid transparent;
+		padding-left: 0.75rem;
+		line-height: 1.4;
 	}
 
-	.toc a:hover {
+	.toc a:hover,
+	.toc a.active {
 		color: var(--text);
+	}
+
+	.toc a.active {
+		border-left-color: var(--text);
+		font-weight: 500;
 	}
 </style>
