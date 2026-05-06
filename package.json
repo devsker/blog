@@ -18,7 +18,14 @@
     "@astrojs/sitemap": "^3.7.2",
     "@hugeicons/core-free-icons": "^4.0.0",
     "astro": "^6.1.5",
+    "node-addon-api": "^8.5.0",
+    "node-gyp": "^10.0.0",
     "playwright": "^1.53.1",
     "sharp": "^0.34.3"
+  },
+  "devDependencies": {
+    "@astrojs/tailwind": "^6.0.2",
+    "@tailwindcss/postcss": "^4.2.4",
+    "tailwindcss": "^4.2.4"
   }
 }

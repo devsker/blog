@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
+import type { MarkdownHeading } from 'astro';
 import ArrowLeft02Icon from '@hugeicons/core-free-icons/ArrowLeft02Icon';
 import Copy01Icon from '@hugeicons/core-free-icons/Copy01Icon';
 import Link01Icon from '@hugeicons/core-free-icons/Link01Icon';
@@ -8,10 +9,14 @@ import Tick01Icon from '@hugeicons/core-free-icons/Tick01Icon';
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
+import TableOfContents from '../components/TableOfContents.astro';
 
-type Props = CollectionEntry<'blog'>['data'];
+type Props = CollectionEntry<'blog'>['data'] & {
+	readingTime?: number;
+	headings?: MarkdownHeading[];
+};
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, readingTime, headings } = Astro.props;
 const basePath = import.meta.env.BASE_URL;
 const withBase = (path: string) => `${basePath.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
 
@@ -36,10 +41,180 @@ const backIconMarkup = renderIconMarkup(ArrowLeft02Icon);
 	<head>
 		<BaseHead title={title} description={description} image={heroImage} imageAlt={title} type="article" />
 		<style>
+			/* ── Layout ── */
 			.prose {
 				padding-top: 0;
 			}
 
+			/* ── Back link ── */
+			.back-link {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.35rem;
+				margin-bottom: 2.5rem;
+				color: var(--muted);
+				text-decoration: none;
+				font-size: 0.85rem;
+				letter-spacing: 0.01em;
+			}
+
+			.back-link:hover {
+				color: var(--text);
+			}
+
+			.back-link__icon {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.back-link__icon :global(svg) {
+				width: 1rem;
+				height: 1rem;
+				transform: translateY(-1px);
+			}
+
+			.back-link__icon :global(svg *) {
+				stroke-width: 2;
+			}
+
+			/* ── Post header ── */
+			.title {
+				margin-bottom: 3rem;
+				padding-bottom: 2rem;
+				border-bottom: 1px solid var(--border);
+			}
+
+			.title h1 {
+				font-size: clamp(1.6rem, 4vw, 2.2rem);
+				line-height: 1.15;
+				font-weight: 700;
+				margin-bottom: 0.75rem;
+				letter-spacing: -0.01em;
+			}
+
+			.meta {
+				color: var(--muted);
+				font-size: 0.85rem;
+				margin-bottom: 1rem;
+			}
+
+			.last-updated-on {
+				color: var(--muted);
+			}
+
+			.description {
+				color: var(--muted);
+				font-size: 1rem;
+				line-height: 1.5;
+				margin: 0;
+				font-style: italic;
+			}
+
+			/* ── Prose content ── */
+			.content {
+				font-family: 'Lora', Georgia, serif;
+			}
+
+			.content :global(p) {
+				margin-bottom: 1.5rem;
+				font-size: 1.05rem;
+				line-height: 1.8;
+				color: var(--text);
+			}
+
+			.content :global(h2) {
+				font-family: 'Inter', system-ui, sans-serif;
+				font-size: 1.2rem;
+				font-weight: 700;
+				margin: 2.75rem 0 0.75rem;
+				letter-spacing: -0.01em;
+			}
+
+			.content :global(h3) {
+				font-family: 'Inter', system-ui, sans-serif;
+				font-size: 1rem;
+				font-weight: 700;
+				margin: 2rem 0 0.5rem;
+				letter-spacing: -0.005em;
+			}
+
+			.content :global(ul),
+			.content :global(ol) {
+				padding-left: 1.5rem;
+				margin-bottom: 1.5rem;
+			}
+
+			.content :global(li) {
+				margin-bottom: 0.45rem;
+				line-height: 1.75;
+				font-size: 1.05rem;
+			}
+
+			.content :global(strong) {
+				color: var(--text);
+				font-weight: 700;
+			}
+
+			.content :global(a) {
+				color: var(--text);
+				text-underline-offset: 3px;
+			}
+
+			.content :global(a:hover) {
+				color: var(--muted);
+			}
+
+			.content :global(hr) {
+				border: none;
+				border-top: 1px solid var(--border);
+				margin: 2.5rem 0;
+			}
+
+			.content :global(blockquote) {
+				border-left: 2px solid var(--border);
+				padding-left: 1.25rem;
+				margin: 1.75rem 0;
+				color: var(--muted);
+				font-style: italic;
+			}
+
+			.content :global(pre) {
+				position: relative;
+				padding: 1.25rem;
+				border-radius: 4px;
+				background: var(--surface);
+				overflow-x: auto;
+				margin-bottom: 1.75rem;
+				font-size: 0.85rem;
+				line-height: 1.65;
+				font-family: ui-monospace, 'Cascadia Code', monospace;
+			}
+
+			.content :global(code) {
+				font-size: 0.875em;
+				font-family: ui-monospace, 'Cascadia Code', monospace;
+				background: var(--surface);
+				padding: 2px 6px;
+				border-radius: 3px;
+			}
+
+			.content :global(pre code) {
+				background: transparent;
+				padding: 0;
+				font-size: inherit;
+			}
+
+			.content :global(.astro-code) {
+				background: var(--surface) !important;
+			}
+
+			img {
+				margin-bottom: 2rem;
+				border-radius: 4px;
+			}
+
+			/* ── Embeds ── */
 			.prose :global(.auto-embed) {
 				margin: 2rem 0;
 			}
@@ -49,7 +224,7 @@ const backIconMarkup = renderIconMarkup(ArrowLeft02Icon);
 				width: 100%;
 				aspect-ratio: 16 / 9;
 				border: 0;
-				border-radius: 1rem;
+				border-radius: 4px;
 				background: var(--surface);
 			}
 
@@ -58,6 +233,7 @@ const backIconMarkup = renderIconMarkup(ArrowLeft02Icon);
 				min-height: 352px;
 			}
 
+			/* ── Heading anchors ── */
 			.prose :global(.heading-anchor) {
 				position: relative;
 				scroll-margin-top: 1.5rem;
@@ -117,10 +293,7 @@ const backIconMarkup = renderIconMarkup(ArrowLeft02Icon);
 				height: 1rem;
 			}
 
-			.prose :global(pre) {
-				position: relative;
-			}
-
+			/* ── Code copy button ── */
 			.prose :global(.code-copy-button) {
 				display: inline-flex;
 				align-items: center;
@@ -133,8 +306,7 @@ const backIconMarkup = renderIconMarkup(ArrowLeft02Icon);
 				border: 0;
 				padding: 0;
 				background: transparent;
-				color: color-mix(in srgb, white 72%, transparent);
-				text-decoration: none;
+				color: color-mix(in srgb, white 50%, transparent);
 				cursor: pointer;
 				transition:
 					color 160ms ease,
@@ -159,78 +331,33 @@ const backIconMarkup = renderIconMarkup(ArrowLeft02Icon);
 				width: 1rem;
 				height: 1rem;
 			}
-
-			.back-link {
-				display: inline-flex;
-				align-items: center;
-				gap: 0.35rem;
-				margin-bottom: 1.5rem;
-				color: var(--muted);
-				text-decoration: none;
-			}
-
-			.back-link:hover {
-				color: var(--text);
-			}
-
-			.back-link__icon {
-				display: inline-flex;
-				align-items: center;
-				justify-content: center;
-			}
-
-			.back-link__icon :global(svg) {
-				width: 1.05rem;
-				height: 1.05rem;
-				transform: translateY(-1px);
-			}
-
-			.back-link__icon :global(svg *) {
-				stroke-width: 2;
-			}
-
-			.title {
-				margin-bottom: 2rem;
-			}
-
-			.title h1 {
-				margin-bottom: 0.5rem;
-			}
-
-			.date {
-				margin-bottom: 0.5rem;
-				color: var(--muted);
-			}
-
-			.last-updated-on {
-				font-size: 0.95rem;
-			}
-
-			img {
-				margin-bottom: 2rem;
-			}
 		</style>
 	</head>
 
 	<body>
 		<main>
 			<article class="prose">
-				<a class="back-link" href={withBase('/')}><span class="back-link__icon" aria-hidden="true" set:html={backIconMarkup} /> Back to posts</a>
+				<a class="back-link" href={withBase('/')}><span class="back-link__icon" aria-hidden="true" set:html={backIconMarkup} /> all posts</a>
 				<div class="title">
-					<div class="date">
+					<h1>{title}</h1>
+					<div class="meta">
 						<FormattedDate date={pubDate} />
+						{readingTime && <span>&nbsp;&middot; {readingTime} min read</span>}
 						{
 							updatedDate && (
-								<div class="last-updated-on">
-									Last updated on <FormattedDate date={updatedDate} />
-								</div>
+								<span class="last-updated-on">
+									&nbsp;&middot; updated <FormattedDate date={updatedDate} />
+								</span>
 							)
 						}
 					</div>
-					<h1>{title}</h1>
+					{description && <p class="description">{description}</p>}
 				</div>
 				{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
-				<slot />
+				{headings && <TableOfContents headings={headings} />}
+				<div class="content">
+					<slot />
+				</div>
 			</article>
 		</main>
 		<Footer />

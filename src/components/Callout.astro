@@ -1,0 +1,114 @@
+---
+import InformationCircleIcon from '@hugeicons/core-free-icons/InformationCircleIcon';
+import Alert01Icon from '@hugeicons/core-free-icons/Alert01Icon';
+import Idea01Icon from '@hugeicons/core-free-icons/Idea01Icon';
+import Cancel01Icon from '@hugeicons/core-free-icons/Cancel01Icon';
+
+type Variant = 'info' | 'warning' | 'tip' | 'danger';
+
+interface Props {
+	type?: Variant;
+	title?: string;
+}
+
+const { type = 'info', title } = Astro.props;
+
+function renderIconMarkup(icon: Array<[string, Record<string, string>]>) {
+	return `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">${icon
+		.map(
+			([tag, attrs]) =>
+				`<${tag} ${Object.entries(attrs)
+					.map(([key, value]) => `${key}="${value}"`)
+					.join(' ')}></${tag}>`,
+		)
+		.join('')}</svg>`;
+}
+
+const iconMap = {
+	info: InformationCircleIcon,
+	warning: Alert01Icon,
+	tip: Idea01Icon,
+	danger: Cancel01Icon,
+};
+
+const iconMarkup = renderIconMarkup(iconMap[type]);
+---
+
+<div class="callout" data-type={type}>
+	<div class="callout__icon" aria-hidden="true" set:html={iconMarkup} />
+	<div class="callout__content">
+		{title && <p class="callout__title">{title}</p>}
+		<slot />
+	</div>
+</div>
+
+<style>
+	.callout {
+		display: flex;
+		gap: 0.75rem;
+		padding: 1rem 1.25rem;
+		border-radius: 4px;
+		border-left: 3px solid var(--callout-color);
+		background: color-mix(in srgb, var(--callout-color) 8%, var(--surface));
+		margin: 1.75rem 0;
+	}
+
+	.callout[data-type='info'] {
+		--callout-color: #4a9eff;
+	}
+
+	.callout[data-type='tip'] {
+		--callout-color: #3ecf6e;
+	}
+
+	.callout[data-type='warning'] {
+		--callout-color: #f5a623;
+	}
+
+	.callout[data-type='danger'] {
+		--callout-color: #ef4444;
+	}
+
+	.callout__icon {
+		flex-shrink: 0;
+		width: 1.25rem;
+		height: 1.25rem;
+		margin-top: 0.1rem;
+		color: var(--callout-color);
+	}
+
+	.callout__icon :global(svg) {
+		width: 100%;
+		height: 100%;
+	}
+
+	.callout__icon :global(svg *) {
+		stroke-width: 2;
+	}
+
+	.callout__content {
+		flex: 1;
+		font-size: 0.95rem;
+	}
+
+	.callout__title {
+		margin: 0 0 0.5rem;
+		font-weight: 600;
+		font-family: 'Inter', system-ui, sans-serif;
+		color: var(--text);
+	}
+
+	.callout :global(p) {
+		margin: 0.25rem 0;
+		font-size: inherit;
+		line-height: 1.6;
+	}
+
+	.callout :global(p:first-child) {
+		margin-top: 0;
+	}
+
+	.callout :global(p:last-child) {
+		margin-bottom: 0;
+	}
+</style>

@@ -12,5 +12,9 @@ export default defineConfig({
 	integrations: [mdx(), sitemap()],
 	markdown: {
 		rehypePlugins: [rehypeAutoEmbed],
+		shikiConfig: {
+			theme: 'github-dark-dimmed',
+			wrap: false,
+		},
 	},
 });

@@ -1,0 +1,53 @@
+---
+import { Image } from 'astro:assets';
+
+interface Props {
+	src: string;
+	alt: string;
+	caption?: string;
+	lightbox?: boolean;
+}
+
+const { src, alt, caption, lightbox } = Astro.props;
+---
+
+<figure class="screenshot">
+	{lightbox ? (
+		<a href={src} target="_blank" rel="noopener noreferrer">
+			<Image src={src} alt={alt} width={1020} height={680} />
+		</a>
+	) : (
+		<Image src={src} alt={alt} width={1020} height={680} />
+	)}
+	{caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<style>
+	.screenshot {
+		margin: 2rem 0;
+		border: 1px solid var(--border);
+		border-radius: 6px;
+		overflow: hidden;
+		box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+	}
+
+	.screenshot a {
+		display: block;
+		text-decoration: none;
+	}
+
+	.screenshot :global(img) {
+		width: 100%;
+		height: auto;
+		display: block;
+		margin: 0;
+	}
+
+	figcaption {
+		padding: 0.6rem 1rem;
+		font-size: 0.8rem;
+		color: var(--muted);
+		border-top: 1px solid var(--border);
+		font-family: 'Inter', system-ui, sans-serif;
+	}
+</style>

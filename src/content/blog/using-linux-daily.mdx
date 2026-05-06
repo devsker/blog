@@ -71,7 +71,9 @@ The installer finished. I rebooted.
 
 **Black screen.**
 
-Weird. I checked the BIOS boot menu. No CachyOS entry. I booted a live USB again and checked GParted. The SSD showed as entirely unallocated. Blank. No partitions. The installer had pretended to work, shown a progress bar, claimed success, and then written absolutely nothing to disk.
+<Callout type="warning">Ventoy can conflict with some installers. The CachyOS installer pretended to work but wrote nothing to disk.</Callout>
+
+I checked the BIOS boot menu. No CachyOS entry. I booted a live USB again and checked GParted. The SSD showed as entirely unallocated. Blank. No partitions. The installer had pretended to work, shown a progress bar, claimed success, and then written absolutely nothing to disk.
 
 I tried again. Same result.
 
@@ -118,7 +120,7 @@ I downloaded the latest Arch ISO. Flashed it. Booted. Instead of seeing a black 
 archinstall
 ```
 
-And suddenly, I was in a TUI application. This felt like cheating. Arch purists would punch me in the face.
+<Callout type="tip">`archinstall` is a guided TUI that handles basically everything you need.</Callout>
 
 **The configuration choices that mattered:**
 
@@ -138,12 +140,11 @@ And suddenly, I was in a TUI application. This felt like cheating. Arch purists 
    - **Printing:** CUPS
    - **Power Management:** `power-profiles-daemon`
 
-7. **Networking Backend:** Here's where I messed up the first time. The installer asks if you want to use **iwd** or the **default** (wpa_supplicant) backend for NetworkManager. I selected iwd.
+7. **Networking Backend:** Here's where I messed up the first time. The installer asks if you want to use **iwd** or the **default** (wpa_supplicant) backend for NetworkManager. I selected iwd. Big mistake. On first boot, WiFi connected. I was happy. I rebooted. WiFi disappeared. NetworkManager showed "No WiFi adapter found."
 
-   **Big mistake.** \
-  On first boot, WiFi connected. I was happy. I rebooted. WiFi disappeared. NetworkManager showed "No WiFi adapter found." I spent an hour debugging `iwd` vs `wpa_supplicant` conflicts, trying to switch backends manually, editing `/etc/NetworkManager/NetworkManager.conf`.
+<Callout type="danger">Choose **Default** networking, not iwd. They conflict and it's a pain to debug.</Callout>
 
-   Eventually, I gave up, re-ran `archinstall`, and selected **Default** networking. It worked perfectly.
+I spent an hour debugging `iwd` vs `wpa_supplicant` conflicts, trying to switch backends manually, editing `/etc/NetworkManager/NetworkManager.conf`. Eventually, I gave up, re-ran `archinstall`, and selected **Default** networking. It worked perfectly.
 
 Total install time: 15 minutes. Reboot. Black screen with a cursor... then KDE Plasma loaded.
 
@@ -196,15 +197,15 @@ Our school has open WiFi. KDE Connect uses broadcast packets to find devices. Oc
 
 ## **Switching to Arch on my main PC**
 
-I'm switching my main rig to Linux too. This is the harder battle. The Dell laptop is Intel graphics, open source drivers, no proprietary nonsense. My gaming PC has an **AMD Ryzen 7 3700X** and an **AMD Radeon 5700xt**.
+I'm switching my main rig to Linux too. This is the harder battle. The Dell laptop is Intel graphics, open source drivers, no proprietary nonsense. My gaming PC has an **AMD Ryzen 7 3700X** and an **AMD Radeon 5700 XT**.
 
-I'm documenting this journey separately. Stay tuned for "Switching to Arch on my main PC."
+I'm documenting this journey separately. Stay tuned for ~~"Switching to Arch on my main PC."~~ **"My mainboard is broken, I guess."**
 
 ---
 
 ## **Why Open Source Matters to a Broke Student**
 
-Let's zoom out. Why do all this? Why not just buy a new laptop with better battery life? Why not suffer through Windows like everyone else?
+Let's zoom out. Why do all this? Why not just buy a new laptop with better battery life? Why not suffer through Windows (or macOS) like everyone else?
 
 Because **I don't own my software anymore.** Windows 11 requires a Microsoft account to install (workarounds exist, but they're temporary). It shows ads in the Start menu. It uploads telemetry I can't inspect. It decides when to update, what features I need, what "AI companions" should interrupt my workflow.
 
@@ -226,6 +227,7 @@ After 2,200+ words let me be real: **Linux is not for everyone.** Not yet. Maybe
 - You have a backup plan (I keep a Windows USB stick in my bag, just in case)
 
 **You should NOT do this if:**
+
 - You're in the middle of exam season and need stability above all else
 - You require software with no Linux alternative (check first!)
 - The thought of opening a terminal makes you anxious

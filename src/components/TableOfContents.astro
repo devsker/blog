@@ -1,0 +1,72 @@
+---
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+	headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+
+const filtered = headings.filter((h) => h.depth === 2 || h.depth === 3);
+---
+
+{
+	filtered.length > 1 && (
+		<nav class="toc" aria-label="Table of contents">
+			<p class="toc__title">On this page</p>
+			<ol>
+				{filtered.map((h) => (
+					<li class:list={['toc__item', h.depth === 3 && 'toc__item--sub']}>
+						<a href={`#${h.slug}`}>{h.text}</a>
+					</li>
+				))}
+			</ol>
+		</nav>
+	)
+}
+
+<style>
+	.toc {
+		border: 1px solid var(--border);
+		border-radius: 4px;
+		padding: 1rem 1.25rem;
+		margin-bottom: 2.5rem;
+		background: var(--surface);
+	}
+
+	.toc__title {
+		font-family: 'Inter', system-ui, sans-serif;
+		font-size: 0.75rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: var(--muted);
+		margin-bottom: 0.75rem;
+		margin: 0 0 0.75rem;
+	}
+
+	.toc ol {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+
+	.toc__item {
+		margin-bottom: 0.4rem;
+		font-size: 0.875rem;
+	}
+
+	.toc__item--sub {
+		padding-left: 1rem;
+	}
+
+	.toc a {
+		color: var(--muted);
+		text-decoration: none;
+		transition: color 160ms ease;
+	}
+
+	.toc a:hover {
+		color: var(--text);
+	}
+</style>

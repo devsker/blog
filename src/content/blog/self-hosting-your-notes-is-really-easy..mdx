@@ -12,7 +12,9 @@ link: https://blog.sker.lol/posts/self-hosting-your-notes-is-really-easy/
 
 I posted my first blog post a few weeks ago, and it's been really fun to write my progress down. But today at 9 am, while sitting in the train driving to school, I started thinking about the annoyance that [AFFINE](https://affine.pro/) is.
 
-AFFINE likes to drain a lot of battery. And when I say a lot, I mean **a lot**. It's really nice for a stationary PC which doesn't run on battery power, but for a student on the go, it's simply not an option. Adding equations using LaTeX is a pain, and the whole experience feels laggy on mobile hardware.
+<Callout type="warning">AFFINE drains battery fast on the laptop I use.</Callout>
+
+It's really nice for my stationary PC which doesn't run on battery power, but for a student on the go, it's simply not an option. Adding equations using LaTeX is a pain, and the whole experience feels laggy.
 
 I simply searched "notion alternatives selfhosting". A few different results popped up.
 
@@ -33,14 +35,13 @@ I tried to set it up, which failed hard. It just didn't want to start. I didn't 
 ---
 
 ## **Defining What I Actually Need**
-
 After Outline failed, I took a step back and thought about if I really need something like Notion. 
 
 **What I need:**
 * **Simple UI**
 * **Fast startup times** (I hate to wait)
 * **Easy note taking**
-* **Markdown support** (and LaTeX)
+* **Markdown support** (LaTeX would also be a bonus)
 
 **What I don't need:**
 * Collaboration
@@ -54,9 +55,7 @@ Obsidian **is not** a real Notion alternative if you need to work with others—
 
 ## **The LiveSync Setup Experience**
 
-Setting up my own sync solution sounded intimidating at first, but it was soooo easy. And so worth it.
-
-I decided to use an old MacBook Pro 2015 as a "Home Server". Here is exactly how it went down:
+Setting up my own sync solution sounded intimidating at first, but it was soooo easy. And so worth it. I decided to use an old MacBook Pro 2015 as a "Home Server". Here is exactly how it went down:
 
 1.  **The Database:** I just needed to download the `docker-compose.yml` file for a [CouchDB](https://couchdb.apache.org/) instance.
 2.  **Configuration:** I opened the web UI of CouchDB and created a new "obsidian" database.
@@ -75,4 +74,4 @@ I'll never pay for any note taking app with cloud sync ever again.
 
 ---
 
-**P.S.** MacOS is a pain to work with in terms of a home server. If you're starting from scratch, I would recommend Linux for this.
+**P.S.** Avoid MacOS for home servers. Use Linux, a Raspberry Pi, or a VPS instead.
