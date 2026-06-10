@@ -21,6 +21,7 @@
     "node-addon-api": "^8.5.0",
     "node-gyp": "^10.0.0",
     "playwright": "^1.53.1",
+    "remark-gfm": "^4.0.1",
     "sharp": "^0.34.3"
   },
   "devDependencies": {
