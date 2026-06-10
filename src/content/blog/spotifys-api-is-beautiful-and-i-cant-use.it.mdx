@@ -1,0 +1,160 @@
+---
+title: Spotify's API Is Beautiful and I Can't Use It
+description: Building a music social app and discovering that Spotify wants 250,000 users before they trust you with the API you need to get users in the first place.
+pubDate: 2026-06-11
+link: https://blog.sker.lol/posts/spotify-api/
+---
+
+## **The App**
+
+The concept is simple: a social app built around music. Think Twitter, but instead of the feed being hot takes and outrage, it's what people are listening to: currently playing, recent listens, micro-reviews, and music-adjacent thoughts. It is the missing social context around music that already exists in everyone's listening history, not a streaming service or a discovery algorithm.
+
+**The two features that made Spotify the obvious choice:**
+
+* **Library import:** Connect your account, pull in your saved tracks, artists, albums. Your musical identity, already organized, without asking users to manually type their preferences.
+* **Currently listening:** A live, real-time feed. The heartbeat of the whole app.
+
+Both of these are completely reasonable things to want from a music API, and both exist as documented Spotify endpoints. Both are, for practical purposes, inaccessible if you're a solo developer without an existing user base.
+
+---
+
+## **The API Itself Is Genuinely Good**
+
+The Spotify Web API is, on paper, one of the nicer APIs I've worked with.
+
+The documentation is thorough without being overwhelming, the OAuth PKCE flow is well-explained with working examples, and the endpoints are logical with clean and consistent response objects. I had a working proof of concept in an afternoon, authenticated, calling `/me/player/currently-playing`, and rendering the result. It worked on the first real try.
+
+**What the API gives you:**
+
+* **Current Playback:** Track name, artist, album, album art, progress in milliseconds, shuffle state, device.
+* **User Library:** `/me/tracks` and `/me/albums`, paginated, well-structured, your entire saved collection accessible programmatically.
+* **User Top Items:** Most listened artists and tracks over short, medium, and long time ranges.
+* **Recently Played:** The last 50 tracks with timestamps.
+
+This is exactly the data you'd need to build the app I'm describing. It all works, and then you read the quota documentation.
+
+---
+
+## **Development Mode and The 25-User Wall**
+
+Every Spotify app starts in **development mode**, where your app functions perfectly with one condition: **you can only have 25 users.**
+
+This is not a rate limit or a free tier cap; it means twenty-five total users across the entire lifetime of your app in this mode. You add them manually by Spotify account email in the developer dashboard. If someone who isn't on the list tries to log in, they see an error. Your app is effectively invite-only and capped by design.
+
+That's fine for a prototype. You build the thing, get it working, get some real users, then apply for extended access. Here's where the fun starts.
+
+---
+
+## **Extended Quota Mode, or: Please Prove You're Already Successful**
+
+To get out of development mode, you apply for **Extended Quota Mode**. The application asks for your app description, a privacy policy URL, Terms of Service, and evidence that your app is actually being used.
+
+The specifics of what evidence looks like are deliberately vague, but the implied scale is not. Spotify's production API isn't something you unlock by having a working app with a clear, legitimate use case. It's something you apply for, a human reviews your application, and they decide whether your project deserves to exist at scale.
+
+Getting proper production access requires demonstrating a user base in the hundreds of thousands. This is not to prove you'll use the API responsibly, but to prove you've already succeeded without it.
+
+Developer forums are filled with threads from creators who waited four months for a response, or apps rejected with form-letter emails and no actionable feedback. Reapplications submitted with no changes somehow get approved on the third attempt. There is a consistent theme of opaque criteria, no SLA, no escalation path, and no appeal process.
+
+The stated reason for all this is abuse prevention and data privacy. The effect is identical either way: you need an enormous user base to unlock the API that would help you build that user base. This is the most perfectly bureaucratic catch-22 I've encountered in software development.
+
+---
+
+## **What I Actually Needed**
+
+Stripped down to the essentials, I needed two things: a one-time library import at account creation to populate a user's musical identity, and a real-time currently-playing signal to make the social feed feel alive.
+
+Neither of these requires doing anything unusual with Spotify's data. I'm not trying to build a Spotify client or resell their catalog. I want to display publicly inferable information and use a user's own data to set up their profile.
+
+The only thing standing between my app and these features is a manual review queue and the implicit requirement to have a quarter million users before you're trusted to call an endpoint that already exists and already works. This policy makes total sense for a company protecting its data, and makes zero sense for the developer trying to build something legitimate with it.
+
+---
+
+## **Enter Last.fm**
+
+After a week of forum reading and an increasingly grim mood, I found the solution that's been sitting there since 2002: **Last.fm**.
+
+Last.fm logs every track you listen to, regardless of which service you're using, via scrobbles. Install the scrobbler, and Last.fm keeps a timestamped record of everything.
+
+**The Last.fm API is aggressively, almost comically permissive by comparison:**
+
+* Register an app, get an API key immediately
+* No manual review or whitelist
+* No user cap or proof of existing success required
+* 5 requests per second on the free tier
+
+The `user.getRecentTracks` endpoint, with `limit=1`, returns the most recently played track. If the user is currently listening, the response includes a `nowplaying` attribute set to `true`. That is the currently-listening feature, working in production, available to any user who has a Last.fm account and has enabled scrobbling.
+
+Does it require users to have a Last.fm account and add extra friction? Yes. Is it meaningfully less friction than waiting indefinitely for Spotify to approve an application with no guaranteed outcome? Genuinely yes.
+
+The Last.fm integration has been in production for a while now. Users who set it up don't complain about it, and the ones who've never heard of Last.fm mostly find the setup understandable once it's explained. A few have even liked rediscovering their listening history on the Last.fm side. It works.
+
+---
+
+## **Library Import: Still Dead**
+
+Last.fm offers top artists, top tracks, and recent plays over various time windows, but it is not a library. By library, I mean the tracks, albums, and artists a user has consciously saved, their deliberate musical identity. This is not algorithmic inference from playback history, but the actual curated collection.
+
+There's no clean open equivalent to this for Spotify users. MusicBrainz and ListenBrainz exist and are philosophically excellent, but they lack the necessary install base. "Connect with Last.fm" is a thing you can ask users to do and most will understand. "Connect with ListenBrainz" produces serious doubts from users. Apple Music has an API, but it has its own review process, its own friction, and its own set of people who don't use it.
+
+So library import is off the roadmap. Users start with an empty profile and build it through their listening activity over time or by manually adding things. It's functional, but it's not the same as the instant, thirty-second onboarding experience I originally designed. I feel the specific frustration of a feature that exists, works, is documented, and is inaccessible for policy reasons rather than technical ones.
+
+---
+
+## **Why Does This Policy Exist**
+
+I have a theory: Spotify has tried to build the social layer themselves multiple times, from Spotify Friends Activity and Blend to the Facebook integration they pushed hard and then quietly deprecated. They keep attempting it and keep pulling back, so social music is clearly something they want but can't quite commit to executing.
+
+A third-party app that gets the music social layer right is mildly threatening to stickiness. If your music identity and social graph live somewhere else, you're slightly less locked in to Spotify specifically.
+
+The API exists because developers demand it and it drives app discovery, but meaningful production access requires a process that conveniently filters out anything that might grow large enough to matter. Small apps stay sandboxed at 25 users, and the ones that somehow become large enough to qualify already have momentum that makes the API access secondary.
+
+Spotify would describe it as data protection and abuse prevention, which are real concerns. But the effect is identical whether the intent is strategic or incidental: the API is functionally a museum exhibit, impressive, well-designed, and sealed behind glass.
+
+---
+
+## **Where Things Stand**
+
+| Feature | Original Plan | What Shipped |
+| --- | --- | --- |
+| Currently listening | Spotify `/me/player/currently-playing` | Last.fm `user.getRecentTracks` |
+| Library import | Spotify saved tracks | ❌ Dropped |
+| Music metadata | Spotify track objects | MusicBrainz + Spotify public endpoints |
+| Auth | Spotify OAuth | Email / password + optional Last.fm OAuth |
+
+The Spotify API does still appear in the project for non-user-specific data, like looking up whether a track exists or fetching album art for metadata. None of that requires user authentication or production access, so that part works fine. The user-facing parts that required actually knowing who you are on Spotify are either replaced or gone.
+
+---
+
+## **Who Should Use the Spotify API**
+
+**It's useful if:**
+
+* You're building for personal use or a small closed group of friends.
+* Your app adds to Spotify without competing with it, like a stats dashboard, a setlist tracker, or a recommendation tool.
+* You have an established user base you can point to in an application.
+* You have the time and tolerance to wait out a manual review with no guaranteed timeline.
+
+**You'll hit a wall if:**
+
+* You're early stage and trying to use the API to get to early stage.
+* Your core feature is library data or currently-playing for arbitrary users.
+* You need to ship and can't block on a review queue.
+* Your app is in any way social, which seems to trigger extra scrutiny based on forum threads.
+
+---
+
+## **A Few Months Later**
+
+The app is live and the Last.fm integration works. Users who have Last.fm set up get the currently-playing feature and generally like it, and most users who don't have it are willing to set it up when nudged.
+
+Every so often I open the Spotify developer forum and read a new thread from a developer who's been waiting three months for an application response, or got rejected for the second time with no explanation. Each one is a small confirmation that I made the right call pivoting away early rather than building around a dependency I couldn't control.
+
+Last.fm's API documentation was last meaningfully updated during the Obama administration, and the website looks like it was designed in 2008 because it was. They responded to my API key request in under a second because it's just a form and a database insert with no human in the loop.
+
+In 2026, for building a music social app, the older and nerdier option is the one that actually works for independent developers.
+
+Make of that what you will.
+
+---
+
+**P.S.** If you're building something in the music space and want to compare notes on the Last.fm integration, or commiserate about Spotify's developer experience, reach out. The project is at [musik.sker.lol](https://musik.sker.lol). Always happy to talk to other people who've been through this specific ordeal.
